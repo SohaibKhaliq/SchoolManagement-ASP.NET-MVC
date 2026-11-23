@@ -11,7 +11,7 @@ In Code First, you define the database structure with C# model classes first. En
 | Framework | ASP.NET Core MVC |
 | Target Framework | .NET 10.0 |
 | ORM | Entity Framework Core 10.0.15 |
-| MySQL Provider | Pomelo.EntityFrameworkCore.MySql 8.0.3 |
+| MySQL Provider | Oracle MySql.EntityFrameworkCore 10.0.12 |
 | Database | MySQL Server 8.0 |
 | IDE | Visual Studio 2022 |
 
@@ -43,9 +43,11 @@ The required Entity Framework Core packages are already referenced in `SchoolMan
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| Pomelo.EntityFrameworkCore.MySql | 8.0.3 | MySQL provider for EF Core |
+| MySql.EntityFrameworkCore | 10.0.12 | Oracle MySQL provider for EF Core |
 | Microsoft.EntityFrameworkCore.Design | 10.0.15 | Design-time support for migrations |
 | Microsoft.EntityFrameworkCore.Tools | 10.0.15 | Package Manager Console commands such as Add-Migration |
+
+The Oracle provider is licensed under GPL-2.0 with the Universal FOSS Exception. Visual Studio may ask you to accept the licence when the package is first restored.
 
 ### Step 3. Start MySQL and Create the Database
 
@@ -126,17 +128,10 @@ using SchoolManagement.Data;
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<SchoolDbContext>(options =>
-    options.UseMySql(connectionString,
-        ServerVersion.AutoDetect(connectionString)));
+    options.UseMySQL(connectionString));
 ```
 
-`ServerVersion.AutoDetect` reads the MySQL server version from the running server. If you prefer to set it explicitly, replace it with your server version, for example:
-
-```csharp
-new MySqlServerVersion(new Version(8, 0, 36))
-```
-
-You can find your server version in MySQL Workbench with `SELECT VERSION();`.
+Note the method name is `UseMySQL` with capital SQL, and the Oracle provider does not need a server version argument. Do not use the Pomelo form `UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))`, it does not exist in this provider.
 
 ### Step 8. Add the First Migration
 
@@ -237,4 +232,4 @@ SchoolManagement-ASP.NET-MVC/
 | Unable to connect to MySQL | Check that MySQL Server is running, and that the server, port, user, and password in `appsettings.json` are correct. |
 | Unknown database `school` | Create the database as shown in Step 3, or run `Update-Database` and let EF Core create it. |
 | No tables are created after `Update-Database` | Check that the DbContext is registered in `Program.cs` and that the model classes are added as `DbSet` properties in `SchoolDbContext`. |
-| Package version conflict on restore | This project targets .NET 10 and EF Core 10.0.15, while `Pomelo.EntityFrameworkCore.MySql` in the project file is version 8.0.3, which targets EF Core 8. If restore or `Add-Migration` fails with a version conflict, update the MySQL provider to a version that matches EF Core 10 before running the first migration. |
+| `UseMySql` or `ServerVersion` is not found | This project uses the Oracle provider, not Pomelo. The method is `UseMySQL(connectionString)` with capital SQL and no server version argument. |
