@@ -73,30 +73,44 @@ Open `appsettings.json`. It already contains a connection string:
 
 Set `pwd` to your MySQL root password. If MySQL runs on a different port, add `Port=3306;` (or your port number) to the connection string. Do not commit a real production password to the repository.
 
-### Step 5. Create the Models
+### Step 5. The Models
 
-Create a model class for each table in the `Models` folder. This is the Code First part: the class defines the table, and each property defines a column.
+The model classes are already in the `Models` folder. This is the Code First part: the class defines the table, and each property defines a column.
 
-Example: create `Models/Student.cs`:
+`Models/Student.cs`:
 
 ```csharp
+using System.ComponentModel.DataAnnotations;
+
 namespace SchoolManagement.Models;
 
 public class Student
 {
     public int Id { get; set; }
+
+    [Required]
+    [StringLength(100)]
+    [Display(Name = "Full Name")]
     public string FullName { get; set; } = string.Empty;
+
+    [Required]
+    [EmailAddress]
     public string Email { get; set; } = string.Empty;
+
+    [Range(5, 100)]
+    public int Age { get; set; }
+
+    [DataType(DataType.Date)]
+    [Display(Name = "Date of Birth")]
     public DateTime DateOfBirth { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
 }
 ```
 
-Repeat this step for every other entity the system needs, for example Teacher, Class, and Enrollment.
+Repeat this pattern for every other entity the system needs, for example Teacher, Class, and Enrollment.
 
-### Step 6. Create the DbContext
+### Step 6. The DbContext
 
-Create a `Data` folder and add `Data/SchoolDbContext.cs`. The DbContext is the class that connects your models to the database. Each `DbSet` property represents one table.
+The DbContext is already in the repo at `Data/SchoolDbContext.cs`. The DbContext is the class that connects your models to the database. Each `DbSet` property represents one table.
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
@@ -117,9 +131,9 @@ public class SchoolDbContext : DbContext
 
 Add one `DbSet` property for each model class you created in Step 5.
 
-### Step 7. Register the DbContext in Program.cs
+### Step 7. DbContext Registration in Program.cs
 
-Open `Program.cs` and register the DbContext before the line `var app = builder.Build();`:
+The DbContext is already registered in `Program.cs`, before the line `var app = builder.Build();`:
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
@@ -189,6 +203,20 @@ The application runs at:
 - HTTPS: `https://localhost:7032`
 - HTTP: `http://localhost:5096`
 
+## Student CRUD (Already Implemented)
+
+Full Create, Read, Update, and Delete for students is already in the repo:
+
+- `Controllers/StudentsController.cs` - Index (list), Details (one student), Create, Edit, and Delete actions. Create uses `_context.Add()` plus `SaveChangesAsync()`, Read uses `ToListAsync()` and `FindAsync()`, Update uses `_context.Update()` plus `SaveChangesAsync()`, Delete uses `_context.Students.Remove()` plus `SaveChangesAsync()`.
+- `Views/Students/Index.cshtml` - List page with a table and Edit, Details, and Delete links.
+- `Views/Students/Create.cshtml` - Form to add a student.
+- `Views/Students/Edit.cshtml` - Form to edit a student, with a hidden `Id` field.
+- `Views/Students/Details.cshtml` - Shows one student.
+- `Views/Students/Delete.cshtml` - Delete confirmation page. Only the POST form deletes the record.
+- `Views/Shared/_Layout.cshtml` - Has a Students link in the top menu.
+
+Run the project and open `/Students` to use it.
+
 ## Changing the Database Later
 
 When you add a model or change a model class, do not edit the database tables directly. Follow the migration workflow:
@@ -212,11 +240,11 @@ Each change gets its own migration. This keeps the code and the database in sync
 
 ```text
 SchoolManagement-ASP.NET-MVC/
-├── Controllers/             # MVC controllers
-├── Data/                    # SchoolDbContext (created in Step 6)
+├── Controllers/             # MVC controllers, including StudentsController
+├── Data/                    # SchoolDbContext
 ├── Migrations/              # Generated migration files (created in Step 8)
-├── Models/                  # Entity classes, for example Student
-├── Views/                   # Razor views
+├── Models/                  # Entity classes, including Student
+├── Views/                   # Razor views, including Views/Students
 ├── wwwroot/                 # Static files (CSS, JS, libraries)
 ├── appsettings.json         # Connection string
 ├── Program.cs               # Application startup and DbContext registration

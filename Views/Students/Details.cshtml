@@ -1,0 +1,24 @@
+@model SchoolManagement.Models.Student
+
+@{
+    ViewData["Title"] = "Student Details";
+}
+
+<h1>Student Details</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.FullName)</dt>
+    <dd class="col-sm-9">@Html.DisplayFor(model => model.FullName)</dd>
+
+    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Email)</dt>
+    <dd class="col-sm-9">@Html.DisplayFor(model => model.Email)</dd>
+
+    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Age)</dt>
+    <dd class="col-sm-9">@Html.DisplayFor(model => model.Age)</dd>
+
+    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.DateOfBirth)</dt>
+    <dd class="col-sm-9">@Html.DisplayFor(model => model.DateOfBirth)</dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>
